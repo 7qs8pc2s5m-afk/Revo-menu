@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Menu | La Lupita x Revolucion</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0b0907; 
+            --card-bg: #161310; 
+            --text-main: #ffffff; 
+            --text-muted: #9ca3af; 
+            --text-cn: #6b7280; 
+            --accent-lupita: #f5a623; 
+            --accent-revo: #e11d48; 
+            --border-color: #26221d; 
+        }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-color); color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* HEADER EN POSITION RELATIVE */
+        header {
+            position: relative;
+            background-color: rgba(11, 9, 7, 0.95);
+            backdrop-filter: blur(10px); z-index: 100; 
+            border-bottom: 1px solid var(--border-color); 
+        }
+
+        .header-logos-row {
+            display: flex; justify-content: center; align-items: center; gap: 20px;
+            padding: 12px 15px 8px 15px; border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .header-dropdowns-row {
+            display: flex; justify-content: center; align-items: center;
+            padding: 10px 15px; position: relative;
+        }
+
+        .img-revo { height: 150px; width: auto; object-fit: contain; mix-blend-mode: screen; margin-top: 10px; }
+        .img-lupita { height: 160px; width: auto; object-fit: contain; mix-blend-mode: screen; }
+        .img-halal { height: 80px; width: auto; object-fit: contain; mix-blend-mode: screen; }
+
+        /* BRAND DROPDOWN */
+        .brand-dropdown-container {
+            display: flex; gap: 15px; align-items: center; justify-content: center;
+        }
+        
+        .brand-pill {
+            background: #e6e4df; border: 1px solid var(--border-color); border-radius: 30px;
+            padding: 8px 20px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.3s ease;
+            color: #0b0907;
+        }
+        .brand-pill:hover { border-color: #57483b; }
+        .brand-pill:not(.active) { background: #1a1612; color: #fff; }
+        .brand-pill-info { display: flex; flex-direction: column; }
+        .brand-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 700; }
+        .brand-sub { font-size: 0.65rem; color: #57534e; text-transform: uppercase; letter-spacing: 1px; }
+        .brand-pill:not(.active) .brand-sub { color: var(--text-muted); }
+        
+        .arrow-icon { 
+            width: 8px; height: 8px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+            transform: rotate(45deg); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin-top: -3px;
+        }
+        .brand-pill.open .arrow-icon { transform: rotate(-135deg); margin-top: 3px; }
+
+        /* MENU DÉROULANT CALÉ SOUS LES BOUTONS ET CENTRÉ */
+        .dropdown-menu-box {
+            display: none; position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(-10px); width: 90%; max-width: 450px; margin-top: 8px;
+            background: #1c1917; border: 1px solid var(--border-color); border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.9); z-index: 9999; padding: 10px 0;
+            backdrop-filter: blur(12px); opacity: 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .dropdown-menu-box.active { display: block; opacity: 1; transform: translateX(-50%) translateY(0); }
+        
+        .dropdown-item {
+            padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; transition: background 0.2s; border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .dropdown-item:hover { background: rgba(255,255,255,0.05); }
+        .dropdown-item-en { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; color: #fff; }
+        .dropdown-item-cn { font-size: 0.9rem; color: var(--text-cn); }
+
+        /* SOUS-NAVIGATION HORIZONTALE */
+        .sub-category-nav {
+            display: none; overflow-x: auto; padding: 10px 15px; gap: 8px; scrollbar-width: none; background: #0b0907;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .sub-category-nav.active-subnav { display: flex; }
+        .sub-category-nav::-webkit-scrollbar { display: none; }
+
+        .sub-tab {
+            background: transparent; border: none; color: var(--text-muted); font-size: 0.85rem;
+            white-space: nowrap; padding: 6px 12px; border-radius: 12px; cursor: pointer; transition: 0.2s;
+        }
+        .sub-tab.active { color: #ffffff; background: rgba(255, 255, 255, 0.1); font-weight: 600; }
+
+        /* GRILLE DE PRODUITS */
+        .menu-container {
+            padding: 20px 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px; padding-bottom: 100px; max-width: 1200px; margin: 0 auto;
+        }
+
+        .subcategory-title-wrapper {
+            grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; margin-top: 20px; margin-bottom: 8px;
+            border-bottom: 1px solid var(--border-color); padding-bottom: 6px;
+        }
+        .subcategory-title {
+            font-size: 1.3rem; color: var(--text-main);
+            font-family: 'Cormorant Garamond', serif; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin: 0;
+        }
+
+        .product-card {
+            background-color: var(--card-bg); border-radius: 12px; overflow: hidden;
+            display: flex; flex-direction: column; cursor: pointer;
+            border: 1px solid var(--border-color); position: relative;
+            aspect-ratio: 16/10; transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .product-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        
+        .product-img { 
+            width: 100%; height: 100%; 
+            position: absolute; top: 0; left: 0; z-index: 1; 
+        }
+        
+        .product-overlay {
+            position: absolute; bottom: 0; left: 0; right: 0; height: 75%;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 60%, transparent 100%);
+            z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; padding: 15px;
+            pointer-events: none;
+        }
+
+        .add-btn-corner {
+            position: absolute; top: 10px; right: 10px; width: 24px; height: 24px;
+            background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px);
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            color: #ffffff; font-size: 0.9rem; font-weight: 300; z-index: 3;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.6);
+            border: 1.2px solid var(--btn-color, #f5a623);
+            transition: transform 0.2s;
+        }
+        
+        .product-name-en { 
+            font-size: 1.15rem; font-family: 'Cormorant Garamond', serif; font-weight: 600; color: #ffffff; margin-bottom: 2px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .allergens { font-size: 0.85rem; letter-spacing: 2px; }
+        .product-name-cn { font-size: 0.85rem; color: #d1d5db; margin-bottom: 8px; font-weight: 400; }
+        
+        .product-bottom { display: flex; justify-content: space-between; align-items: baseline; }
+        .product-price { font-size: 1.15rem; font-weight: 600; color: #f3f4f6; font-family: 'Cormorant Garamond', serif; }
+
+        /* SHISHA LAYOUT */
+        .shisha-container { 
+            grid-column: 1 / -1; 
+            display: flex; gap: 30px; 
+            padding: 20px 0; 
+            align-items: stretch;
+        }
+        @media (max-width: 768px) {
+            .shisha-container { flex-direction: column; align-items: stretch; }
+        }
+        .shisha-image-col {
+            flex: 0 0 35%;
+            max-width: 350px;
+            display: flex;
+        }
+        .shisha-image-col img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            border-radius: 16px;
+        }
+        .shisha-list-col {
+            flex: 1;
+            display: flex; flex-direction: column; gap: 20px;
+            width: 100%;
+        }
+        .shisha-series-title { 
+            font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: #ffffff; 
+            border-bottom: 1px solid var(--border-color); padding-bottom: 8px; 
+            display: flex; justify-content: space-between; align-items: center; 
+        }
+        .shisha-series-title span { color: var(--text-cn); font-size: 1rem; }
+        .shisha-item { 
+            display: flex; justify-content: space-between; align-items: flex-start; 
+            padding: 10px 0; border-bottom: 1px dashed rgba(255,255,255,0.05); 
+        }
+        .shisha-names h4 { margin: 0; font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .shisha-names h4 span { color: var(--text-muted); font-size: 0.95rem; font-weight: 400; font-family: 'Montserrat', sans-serif;}
+        .shisha-desc { margin: 4px 0 0 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
+        .shisha-price { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: #f3f4f6; white-space: nowrap; margin-left: 20px; }
+
+        /* MODALE */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.85); z-index: 200; align-items: center; justify-content: center;
+            backdrop-filter: blur(8px); opacity: 0; transition: opacity 0.3s ease;
+        }
+        .modal.active { display: flex; opacity: 1; }
+        .modal-content {
+            background-color: var(--card-bg); width: 90%; max-width: 400px; 
+            border-radius: 16px; overflow: hidden; position: relative; max-height: 95vh; overflow-y: auto;
+            border: 1px solid var(--border-color); transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .modal.active .modal-content { transform: scale(1); }
+        .close-btn {
+            position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6);
+            color: white; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; z-index: 10;
+        }
+        .modal-img { 
+            width: 100%; 
+            background-color: #2c2825; 
+        }
+        .modal-body { padding: 20px; }
+        .modal-title-wrapper { display: flex; justify-content: space-between; align-items: center;}
+        
+        #modalNameEn { margin: 0; font-size: 1.5rem; font-family: 'Cormorant Garamond', serif; color: #fff;}
+        #modalAllergens { font-size: 1rem; }
+        #modalNameCn { color: var(--text-cn); font-size: 0.95rem; margin-top: 2px; margin-bottom: 12px; }
+        #modalPrice { font-size: 1.4rem; font-weight: 600; margin-bottom: 15px; font-family: 'Cormorant Garamond', serif; color: #f3f4f6;}
+        #modalDesc { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; border-top: 1px solid var(--border-color); padding-top: 12px;}
+    </style>
+</head>
+<body>
+
+    <header>
+        <!-- ÉTAGE 1 : LES 3 LOGOS CÔTE À CÔTE (REVO EN PREMIER) -->
+        <div class="header-logos-row">
+            <img src="revo-logo.png" alt="Revolucion" class="img-revo">
+            <img src="lupita-logo.png" alt="La Lupita" class="img-lupita">
+            <img src="halal.png" alt="Halal Food" class="img-halal">
+        </div>
+
+        <!-- ÉTAGE 2 : LES BOUTONS DE SÉLECTION DE MARQUE -->
+        <div class="header-dropdowns-row">
+            <div class="brand-dropdown-container">
+                <div class="brand-pill active" id="pill-lupita" onclick="toggleDropdown('lupita')">
+                    <div class="brand-pill-info">
+                        <span class="brand-title">La Lupita</span>
+                        <span class="brand-sub">Food · 美食</span>
+                    </div>
+                    <div class="arrow-icon"></div>
+                </div>
+
+                <div class="brand-pill" id="pill-revo" onclick="toggleDropdown('revo')">
+                    <div class="brand-pill-info">
+                        <span class="brand-title">Revolucion Cocktail</span>
+                        <span class="brand-sub">Drinks · 酒水</span>
+                    </div>
+                    <div class="arrow-icon"></div>
+                </div>
+            </div>
+
+            <!-- MENU DÉROULANT LA LUPITA -->
+            <div class="dropdown-menu-box" id="dropdown-lupita">
+                <div class="dropdown-item" onclick="selectCategory('lupita', 'finger', 'Finger Food', '#f5a623')">
+                    <span class="dropdown-item-en">Finger Food</span><span class="dropdown-item-cn">分享小食</span>
+                </div>
+                <div class="dropdown-item" onclick="selectCategory('lupita', 'platos', 'Platos', '#38bdf8')">
+                    <span class="dropdown-item-en">Platos</span><span class="dropdown-item-cn">主菜</span>
+                </div>
+                <div class="dropdown-item" onclick="selectCategory('lupita', 'tacos', 'Tacos', '#4ade80')">
+                    <span class="dropdown-item-en">Tacos</span><span class="dropdown-item-cn">墨西哥塔可</span>
+                </div>
+                <div class="dropdown-item" onclick="selectCategory('lupita', 'desserts', 'Desserts', '#f472b6')">
+                    <span class="dropdown-item-en">Desserts</span><span class="dropdown-item-cn">甜点</span>
+                </div>
+                <div class="dropdown-item" onclick="selectCategory('lupita', 'happy', 'Happy Hours', '#fbbf24')">
+                    <span class="dropdown-item-en">Happy Hours</span><span class="dropdown-item-cn">欢乐时光</span>
+                </div>
+            </div>
+
+            <!-- MENU DÉROULANT REVOLUCION -->
+            <div class="dropdown-menu-box" id="dropdown-revo">
+                <div class="dropdown-item" onclick="selectCategory('revo', 'cocktails', 'Cocktails', '#e11d48')">
+                    <span class="dropdown-item-en">Cocktails</span><span class="dropdown-item-cn">鸡尾酒</span>
+                </div>
+                <div class="dropdown-item" onclick="selectCategory('revo', 'shots', 'Shots', '#fb7185')">
+                    <span class="dropdown-item-en">Shots</span><span class="dropdown-item-cn">子弹杯</span>
+                </div>
+                <div class="dropdown-item" onclick="selectCategory('revo', 'wines', 'Wines', '#c084fc')">
+                    <span class="dropdown-item-en">Wines</span><span class="dropdown-item-cn">红酒</span>
+                </div>
+                <div class="dropdown-item" onclick="selectCategory('revo', 'beers', 'Beers', '#fb923c')">
+                    <span class="dropdown-item-en">Beers</span><span class="dropdown-item-cn">啤酒</span>
+                </div>
+                <div class="dropdown-item" onclick="selectCategory('revo', 'softs', 'Soft Drinks', '#94a3b8')">
+                    <span class="dropdown-item-en">Soft Drinks</span><span class="dropdown-item-cn">软饮</span>
+                </div>
+                <div class="dropdown-item" onclick="selectCategory('revo', 'shisha', 'Shisha', '#38bdf8')">
+                    <span class="dropdown-item-en">Shisha</span><span class="dropdown-item-cn">水烟</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="sub-category-nav active-subnav" id="subnav-container"></div>
+    </header>
+
+    <main class="menu-container" id="mainMenuContainer"></main>
+
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">×</button>
+            <img class="modal-img" id="modalImg" src="" alt="Detail">
+            <div class="modal-body">
+                <div class="modal-title-wrapper">
+                    <h2 id="modalNameEn">Nom</h2>
+                    <span id="modalAllergens" class="allergens"></span>
+                </div>
+                <div id="modalNameCn">CN</div>
+                <div id="modalPrice">¥0</div>
+                <div class="modal-desc" id="modalDesc">Desc</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentCategoryColor = '#f5a623';
+
+        const menuData = {
+            "lupita": {
+                "finger": [
+                    {
+                        "id": "lupita-sub-bar",
+                        "subcategory": "Bar snacks & Appetizers",
+                        "items": [
+                            ["Peanuts", "油炸花生米", "Crispy fried peanuts with salt. 香脆花生和盐。", "¥28", "🥜", "peanut.JPG"],
+                            ["Soy Wasabi Cucumber", "芥末酱油黄瓜条", "Fresh cucumber strips with soy sauce and wasabi. 鲜切黄瓜条配酱油和芥末。", "¥38", "", "cucumber.JPG"],
+                            ["French Fries", "炸薯条", "Crispy golden fries served with ketchup. 香脆金黄炸薯条配番茄酱。", "¥38", "", "fries.JPG"],
+                            ["Salt & Pepper Calamari", "椒盐鱿鱼圈", "Fried squid with garlic, served with spicy lime dip. 大蒜炒鱿鱼。", "¥68", "🦐 🌾", "calamari.JPG"],
+                            ["Guacamole & Chips", "牛油果酱&玉米片", "Fresh guacamole with grilled corn and corn chips. 牛油果酱配玉米片。", "¥68", "", "guacamole.JPG"],
+                            ["Chicken Wings", "鸡翅", "Buffalo-style wings (6 pcs). 水牛城鸡翅（6块）。", "¥58", "🌶️", "chicken-wings.JPG"],
+                            ["Chicken Spring Rolls", "鸡肉春卷", "Ground chicken, Thai basil and chili in a crispy roll. 鸡肉春卷。", "¥48", "🌾", "chicken-spring-rolls.JPG"],
+                            ["Classic Nachos", "经典烧烤玉米片", "Nachos with beans, cheese, tomato, onion, jalapeños. 烤玉米片配豆类、奶酪、番茄、洋葱、墨西哥胡椒。", "¥58", "🥛 🌶️", "nachos.JPG"]
+                        ]
+                    },
+                    {
+                        "id": "lupita-sub-ceviches",
+                        "subcategory": "Ceviches",
+                        "items": [
+                            ["Tropical Prawn Ceviche", "热带风味腌虾", "Shrimps in coconut lime dressing with pineapple, cucumber and chili. 椰香青柠汁腌虾配菠萝、黄瓜和辣椒。", "¥78", "🦐 🌶️", "ceviches-shrimp.JPG"],
+                            ["Lupita Cocktail Ceviche", "拉鲁皮塔墨西哥酒腌海鲜", "Shrimps, fish, tomato juice, onion, coriander, jalapeño. 虾、鱼、番茄汁、洋葱、香菜、墨西哥胡椒。", "¥88", "🦐 🌶️", "cocktail-ceviches.JPG"],
+                            ["Tropical Fish Ceviche", "热带风味腌鱼", "Fish cured in coconut lime with pineapple, cucumber and chili. 椰香青柠汁腌鱼配菠萝、黄瓜和辣椒。", "¥78", "🐟 🌶️", "fish-ceviches.JPG"]
+                        ]
+                    }
+                ],
+                "platos": [
+                    {
+                        "id": "sub-quesa",
+                        "subcategory": "Quesadillas",
+                        "items": [
+                            ["Quesadilla Asada Beef", "烤牛肉煎饼", "Grilled beef, cheese, lettuce, onion, coriander. 烤牛肉、奶酪、生菜、洋葱、香菜。", "¥78", "🥛", "quesadilla-asada.JPG"],
+                            ["Chicken Pastor Quesadilla", "墨西哥帕多斯烤鸡肉煎饼", "Spiced chicken, cheese, pineapple, lettuce. 五香鸡肉、奶酪、菠萝、生菜。", "¥75", "🥛 🌶️", "quesadilla-pastor.JPG"],
+                            ["Quesadilla de Tinga", "墨西哥辣鸡肉煎饼", "Shredded chicken in smoky chipotle sauce. 烟熏辣椒酱手撕鸡肉。", "¥75", "🥛 🌶️", "quesadillas-tinga.JPG"],
+                            ["Baja Shrimp Quesadilla", "炸虾煎饼", "Crispy shrimp with cabbage and chipotle mayo. 炸虾配卷心菜和辣椒蛋黄酱。", "¥78", "🦐 🥛 🌾", "quesadilla-shrimp.JPG"],
+                            ["Quesadilla de Birria", "炖牛肉煎饼", "Slow-cooked beef, cheese, lettuce, onion, coriander. 慢炖牛肉、奶酪、生菜、洋葱、香菜。", "¥75", "🥛", "quesadilla-birria.JPG"],
+                            ["Quesadilla Vegetarian", "素食煎饼", "Grilled mushrooms, bell peppers, onion, lettuce, cheese. 烤蘑菇、甜椒、洋葱、生菜、奶酪。", "¥65", "🥛", "quesadilla-vegetarian.JPG"]
+                        ]
+                    },
+                    {
+                        "id": "sub-burritos",
+                        "subcategory": "Burritos",
+                        "items": [
+                            ["Burrito de Birria", "炖牛肉卷", "Slow-cooked beef cheek, cheese, beans, lettuce, rice. 慢炖牛颊肉、奶酪、豆类、生菜、米饭。", "¥78", "🥛 🌾", "burrito-birria.JPG"],
+                            ["Burrito de Asada Beef", "烤牛肉卷饼", "Grilled beef marinated, cheese, beans, lettuce, rice. 腌制烤牛肉、奶酪、豆类、生菜、米饭。", "¥78", "🥛 🌾", "burrito-asada.JPG"],
+                            ["Burrito Chicken Pastor", "墨西哥帕多斯烤鸡肉卷饼", "Chicken marinated spiced, cheese, beans, lettuce, rice. 五香腌制鸡肉、奶酪、豆类、生菜、米饭。", "¥75", "🥛 🌾 🌶️", "burrito-pastor.JPG"],
+                            ["Burrito de Tinga", "墨西哥辣鸡肉卷饼", "Shredded chicken in smoky chipotle sauce. 烟熏辣椒酱手撕鸡肉。", "¥68", "🥛 🌾 🌶️", "burrito-chicken-tinga.JPG"],
+                            ["Vegetarian Burrito", "素食卷饼", "Grilled mushrooms, bell peppers, onion and cheese. 烤蘑菇、甜椒、洋葱和奶酪。", "¥65", "🥛 🌾", "burrito-vegetarian.JPG"]
+                        ]
+                    },
+                    {
+                        "id": "sub-burgers",
+                        "subcategory": "Burger & Sandwiches",
+                        "items": [
+                            ["The Tupac Burger", "地狱牛肉汉堡", "Beef patty with cheese, fried pickles, pink sauce, lettuces. 牛肉饼配奶酪、炸酸黄瓜、粉红酱、生菜。", "¥78", "🥛 🌾", "tupac-burger.JPG"],
+                            ["Tupac Double-Layered Burger", "图帕克双层牛肉汉堡", "Double beef patty with cheddar, onion, pickles. 双层牛肉饼配切达奶酪、洋葱、酸黄瓜。", "¥98", "🥛 🌾", "tupac-double-burger.JPG"],
+                            ["Torta Cubana", "古巴三明治", "Crispy bread, ground meat beef, grill egg, ham beef, beans. 脆皮面包、碎牛肉、煎蛋、火腿牛肉、豆类。", "¥78", "🥛 🌾 🥚", "torta-cubana.JPG"]
+                        ]
+                    },
+                    {
+                        "id": "sub-grilled",
+                        "subcategory": "Grilled plates",
+                        "items": [
+                            ["Carne Asada Plate", "烤牛排拼盘", "Grilled marinated skirt steak served with salad. 烤腌制牛裙排配沙拉。", "¥148", "", "carne-asada.JPG"],
+                            ["Chops Lamb Chimichurri", "烤羊排配奇米兹里", "Grilled Lamb chops served with salad. 烤羊排配沙拉。", "¥128", "", "chops-lamb.JPG"],
+                            ["Fajitas", "法基塔", "Grilled peppers, onions and meat of your choice, on cast iron skillet. 铁板烤甜椒、洋葱及自选肉类。", "¥78+", "🌾", "fajitas.JPG"],
+                            ["Grilled Fish Fillet", "烤鱼排拼盘", "Grilled tilapia with aji Amarillo cream served with potatoes. 烤罗非鱼配黄辣椒奶油酱及土豆。", "¥98", "🐟 🥛", "grilled-fish.JPG"]
+                        ]
+                    },
+                    {
+                        "id": "sub-bowls",
+                        "subcategory": "Bowls",
+                        "items": [
+                            ["Birria Bowl", "炖牛肉沙拉碗", "Slow-cooked beef cheek with herbs and chili, served over greens. 慢炖香草辣椒牛颊肉，配绿叶蔬菜。", "¥78", "🌶️", "bowl-birria.JPG"],
+                            ["Chicken Pastor Bowl", "墨西哥帕多斯烤鸡肉沙拉碗", "Chicken pastor served over greens, beans and rice. 墨西哥烤鸡肉，配绿叶蔬菜、豆类和米饭。", "¥68", "🌶️", "bowl-pastor.JPG"],
+                            ["Chicken Tinga Bowl", "墨西哥辣鸡肉沙拉碗", "Shredded chicken in smoky chipotle sauce, served over greens. 烟熏辣椒酱手撕鸡肉，配绿叶蔬菜。", "¥68", "🌶️", "Bowl-chicken-tinga.JPG"],
+                            ["Vegetarian Bowl", "素食沙拉碗", "Mushrooms, bell peppers, onion and cheese, served over greens. 蘑菇、甜椒、洋葱和奶酪，配绿叶蔬菜。", "¥65", "🥛", "bowl-vegetarian.JPG"]
+                        ]
+                    },
+                    {
+                        "id": "sub-specialities",
+                        "subcategory": "Specialities",
+                        "items": [
+                            ["Corn Quesabirria Soup", "墨西哥炖牛肉汤", "Slow-cooked beef soup served with 3 corn quesabirria. 慢炖牛肉汤，配3块玉米面炖牛肉煎饼。", "¥78", "🥛", "corne.JPG"]
+                        ]
+                    }
+                ],
+                "tacos": [
+                    {
+                        "id": "sub-tacos3",
+                        "subcategory": "Tacos (3 pcs)",
+                        "items": [
+                            ["Tacos de Birria", "炖牛肉塔可", "Slow-cooked beef cheek with herbs and chili. 慢炖香草辣椒牛颊肉。", "¥78", "🌶️", "tacos-birria.JPG"],
+                            ["Tacos Chicken Pastor", "墨西哥帕多斯烤鸡肉塔可", "Marinated chicken, served onion and coriander. 腌制鸡肉，配洋葱和香菜。", "¥68", "🌶️", "tacos-pastor.JPG"],
+                            ["Tacos Asada", "烤牛肉塔可", "Beef grilled marinated, served onions and coriander. 烤腌制牛肉，配洋葱和香菜。", "¥78", "", "tacos-asada.JPG"],
+                            ["Baja Fish Tacos", "炸鱼塔可", "Crispy fish fillet with cabbage and salsa. 炸鱼排配卷心菜和莎莎酱。", "¥78", "🐟 🌾", "baja-fish.png"],
+                            ["Baja Shrimp Tacos", "炸虾塔可", "Crispy shrimp with cabbage and chipotle mayo. 炸虾配卷心菜和辣椒蛋黄酱。", "¥78", "🦐 🌾 🌶️", "baja-shrimp.png"],
+                            ["Tacos de Tinga", "墨西哥辣鸡肉塔可", "Shredded chicken in smoky chipotle sauce. 烟熏辣椒酱手撕鸡肉。", "¥68", "🌶️", "tacos-tinga.JPG"],
+                            ["Vegetarian Tacos", "素食塔可", "Grilled mushrooms, bell peppers, zucchini, onion. 烤蘑菇、甜椒、西葫芦、洋葱。", "¥65", "", "tacos-vegetarian.JPG"]
+                        ]
+                    },
+                    {
+                        "id": "sub-board",
+                        "subcategory": "Tacos Board",
+                        "items": [
+                            ["Tacos Tuesday Board", "塔可周二特价", "5 choices, 2 tacos each. 5种口味，每种2个塔可。", "¥168", "", "tacos-board.JPG"],
+                            ["Tacos Board", "塔可组合套餐", "5 choices, 2 tacos each. 5种口味，每种2个塔可。", "¥210", "", "tacos-board.JPG"]
+                        ]
+                    }
+                ],
+                "desserts": [
+                    {
+                        "id": "sub-desserts",
+                        "subcategory": "Desserts",
+                        "items": [
+                            ["Churros", "墨西哥油条", "Churros with chocolate sauce. 墨西哥油条配巧克力酱。", "¥38", "🌾 🥛", "churros-chocolate.JPG"],
+                            ["Churros Condensado", "浓缩巧克力蛋糕", "Churros with milk condensed sauce. 墨西哥油条配炼乳酱。", "¥48", "🌾 🥛", "churros-condensado.JPG"]
+                        ]
+                    }
+                ],
+                "happy": [
+                    {
+                        "id": "sub-happy",
+                        "subcategory": "Happy Hours",
+                        "items": [
+                            ["Corona (HH)", "科罗娜", "Buy 1 Get 1 Free. 买一送一", "¥40", "", "corona.jpeg"],
+                            ["Carlsberg (HH)", "嘉士伯", "Buy 1 Get 1 Free. 买一送一", "¥55", "", "carlsberg.jpeg"],
+                            ["Ducato IPA (HH)", "杜卡托", "Buy 1 Get 1 Free. 买一送一", "¥60", "", "ducato.jpeg"],
+                            ["Margarita (HH)", "玛格丽特", "Buy 1 Get 1 Free. 买一送一", "¥80", "", "marga-lupita.jpeg"]
+                        ]
+                    }
+                ]
+            },
+            "revo": {
+                "cocktails": [
+                    {
+                        "id": "sub-sig",
+                        "subcategory": "Signature",
+                        "items": [
+                            ["Mr Dameisha", "", "Italicus liquor, raspberry puree, sparkling wine. 意大利康沛尼利口酒、覆盆子果泥、起泡酒", "¥80", "", "dameisha.jpeg", "center 30%"],
+                            ["Mrs Xiaomeisha", "", "Strawberry Gin, Campari infused with coffee bean. 草莓金酒、咖啡豆浸泡金巴利", "¥80", "", "xiaomeisha.jpeg", "center 60%"],
+                            ["Mrs Red", "", "Olmeca, homemade turmeric syrup, cacao white liquor. 奥美加龙舌兰、自制姜黄糖浆、白可可利口酒", "¥80", "", "mrs-red.jpeg", "center 40%"],
+                            ["Mr White", "", "Vodka, lemon juice, raspberry puree, cranberry juice. 伏特加、柠檬汁、覆盆子果泥、蔓越莓汁", "¥80", "", "white.jpeg"],
+                            ["Mr Black", "", "Havana 3 yrs rum, espresso coffee, pandan syrup. 哈瓦那3年朗姆酒、浓缩咖啡、斑斓糖浆", "¥80", "", "black.jpeg"],
+                            ["Mr Yellow", "", "Havana rum 3 yrs, fresh pineapple, caramel syrup. 哈瓦那3年朗姆酒、新鲜菠萝、焦糖糖浆", "¥80", "", "yellow.jpeg"],
+                            ["Mr Green", "", "Beefeater, cardamon seed, pear puree, pandan syrup. 必富达金酒、小豆蔻籽、梨果泥、斑斓糖浆", "¥80", "", "green.jpeg"],
+                            ["Mr Orange", "", "Jameson, fresh turmeric, fresh orange, fresh lemon. 尊美醇、新鲜姜黄、鲜橙、鲜柠檬", "¥80", "", "orange.jpeg", "center 60%"]
+                        ]
+                    },
+                    {
+                        "id": "sub-allstar",
+                        "subcategory": "All Star",
+                        "items": [
+                            ["BKK Tonic", "", "Beefeater, passion fruit, kaffir leave, coconut syrup. 必富达金酒、百香果、青柠叶、椰子糖浆", "¥80", "", "bkk.jpeg"],
+                            ["Revolucion Cocktail", "", "Havana 3 yrs, fresh rosemary, passion fruit puree. 哈瓦那3年朗姆酒、新鲜迷迭香、百香果果泥", "¥80", "", "Revo.jpeg"],
+                            ["Cuban Gentleman", "", "Havana 7 yrs, vanilla syrup, angostura bitter. 哈瓦那7年朗姆酒、香草糖浆、安戈斯图拉苦精", "¥90", "", "cuban.jpeg", "center 60%"],
+                            ["Bull Kiss", "", "Absolut, vanilla syrup, raspberry puree, cranberry juice. 绝对伏特加、香草糖浆、覆盆子果泥、蔓越莓汁", "¥80", "", "bull-kiss.jpeg", "center 60%"],
+                            ["Asian Colada", "", "Havana 3 yrs, passion fruit puree, coconut puree. 哈瓦那3年朗姆酒、百香果果泥、椰子果泥", "¥80", "", "asian-colada.jpeg"],
+                            ["G&G", "", "Beefeater, grapefruit syrup, grapefruit juice, tonic water. 必富达金酒、西柚糖浆、西柚汁、汤力水", "¥80", "", "g-g.jpeg"],
+                            ["Passion of Jager", "", "Jager Meister, passion fruit puree, fresh lime. 野格、百香果果泥、新鲜青柠", "¥80", "", "passion-jager.jpeg"],
+                            ["Vanilla Passion Martini", "", "Absolut, passion fruit puree, strawberry puree. 绝对伏特加、百香果果泥、草莓果泥", "¥90", "", "vanilla.jpeg"]
+                        ]
+                    },
+                    {
+                        "id": "sub-classic",
+                        "subcategory": "Classic Cocktails",
+                        "items": [
+                            ["Mai Tai", "", "Havana 3 yrs, Havana 7 yrs, fresh lime, orgeat syrup. 哈瓦那3年、哈瓦那7年、新鲜青柠、杏仁糖浆", "¥80", "🥜", "mai-tai.jpeg", "center 70%"],
+                            ["Old Fashioned", "", "Jim beam, sugar, fresh orange, angostura bitter. 占边波本威士忌、糖、新鲜橙子、安戈斯图拉苦精", "¥80", "", "old-fashioned.jpeg", "center 80%"],
+                            ["Pisco Sour", "", "Pisco, lemon juice, sugar syrup, angostura bitter. 皮斯科、柠檬汁、糖浆、安戈斯图拉苦精", "¥80", "🥚", "pisco-sour.jpeg", "center 70%"],
+                            ["Penicillin", "", "Ballantines whisky, Laphroaig, ginger honey syrup. 百龄坛威士忌、拉弗格、姜汁蜂蜜糖浆", "¥80", "", "Penicillin.jpeg", "center 70%"],
+                            ["Paloma", "", "Olmeca, grapefruit syrup, grapefruit juice, soda water. 奥美加龙舌兰、西柚糖浆、西柚汁、苏打水", "¥80", "", "paloma.jpeg", "center 70%"],
+                            ["Negroni", "", "Beefeater, martini rosso, Campari. 必富达金酒、马天尼红威末酒、金巴利", "¥80", "", "negroni.jpeg", "center 80%"],
+                            ["Margarita", "", "Olmeca tequila, fresh lime, triple sec. 奥美加龙舌兰、新鲜青柠、白橙皮酒", "¥80", "", "margarita-revo.jpeg", "center 70%"],
+                            ["Mojito", "", "Havana 3 yrs, fresh lime, fresh mint, lime juice. 哈瓦那3年朗姆酒、新鲜青柠、新鲜薄荷、青柠汁", "¥80", "", "mojito.jpeg", "center 60%"],
+                            ["Zombie", "", "Havana 3/7yrs, overproof rum, lemon/grapefruit juice. 哈瓦那3年/7年、高度朗姆酒、柠檬/西柚汁", "¥80", "", "Zombie.jpeg", "center 60%"],
+                            ["Pina Colada", "", "Havana 3 yrs, fresh pineapple, pineapple juice. 哈瓦那3年朗姆酒、新鲜菠萝、菠萝汁", "¥80", "", "pina.jpeg"],
+                            ["Aperol Spritz", "", "Aperol, sparkling wine, soda water, fresh orange. 阿佩罗、起泡酒、苏打水、新鲜橙子", "¥80", "", "aperol-spritz.jpeg", "center 40%"],
+                            ["Gin Fizz", "", "Beefeater, lemon juice, sugar syrup, egg white. 必富达金酒、柠檬汁、糖浆、蛋清", "¥80", "🥚", "gin-fizz.jpeg"],
+                            ["God Father", "", "Jameson, Disaronno. 尊美醇、帝萨诺", "¥80", "", "god-father.jpeg", "center 80%"],
+                            ["Caipirinha", "", "Cachaça, fresh lime, sugar. 卡莎萨、新鲜青柠、糖", "¥80", "", "capirinha.jpeg", "center 70%"],
+                            ["Whisky Sour", "", "Jameson, lemon juice, sugar syrup, angostura bitter. 尊美醇、柠檬汁、糖浆、安戈斯图拉苦精", "¥80", "🥚", "whisky-sour.jpeg", "center 70%"],
+                            ["Moscow Mule", "", "Absolut Vodka, lime juice, sugar syrup, ginger beer. 绝对伏特加、青柠汁、糖浆、姜汁啤酒", "¥80", "", "moscow.jpeg", "center 70%"],
+                            ["Long Island", "", "Tequila, Vodka, White Rum, Gin, Triple sec. 龙舌兰、伏特加、白朗姆、金酒、白橙皮酒", "¥90", "", "long-island.jpeg", "center 60%"]
+                        ]
+                    },
+                    {
+                        "id": "sub-mocktails",
+                        "subcategory": "Mocktails",
+                        "items": [
+                            ["Oasis Berry", "", "Apple juice, cassis syrup, raspberry puree. 苹果汁、黑醋栗糖浆、覆盆子果泥", "¥60", "", "oasis.jpeg"],
+                            ["Apple Mojito", "", "Mint, lime, sugar, apple juice. 薄荷、青柠、糖、苹果汁", "¥60", "", "apple-mojito.jpeg"],
+                            ["Pink Grapefruit Fizz", "", "Grapefruit juice, grapefruit syrup, soda water. 西柚汁、西柚糖浆、苏打水", "¥60", "", "pink-grapefruit.jpeg"],
+                            ["Red Berry", "", "Raspberry, strawberry, cranberry juice, lime. 覆盆子、草莓、蔓越莓汁、青柠", "¥60", "", "red-berry.jpeg"],
+                            ["Yu Garden", "", "Apple juice, cardamon seed, pear puree, pandan syrup. 苹果汁、小豆蔻籽、梨果泥、斑斓糖浆", "¥60", "", "yu.jpeg"]
+                        ]
+                    },
+                    {
+                        "id": "sub-lupitacock",
+                        "subcategory": "Lupita Cocktail",
+                        "items": [
+                            ["Frozen Margarita (Glass)", "玛格丽特冰沙（杯）", "Lime / Mango / Strawberry. 青柠 / 芒果 / 草莓", "¥80", "", "frozen-marga.jpeg", "center 40%"],
+                            ["Frozen Margarita (Jug 1L)", "玛格丽特冰沙（壶 1升）", "Lime / Mango / Strawberry. 青柠 / 芒果 / 草莓", "¥198", "", "frozen-liter.jpeg"],
+                            ["Cantarito", "坎塔里托", "Tequila blanco, orange juice, grapefruit juice. 白龙舌兰、橙汁、西柚汁", "¥80", "", "cantarito.jpeg", "center 65%"],
+                            ["Batanga", "巴坦加", "Tequila, Lime, Cola. 龙舌兰、青柠、可乐", "¥80", "", "batanga.jpeg", "center 65%"],
+                            ["Margarita (Lupita)", "玛格丽特", "Glass / 杯", "¥80", "", "marga-lupita.jpeg", "center 30%"]
+                        ]
+                    }
+                ],
+                "shots": [
+                    {
+                        "id": "sub-shots",
+                        "subcategory": "Shots",
+                        "items": [
+                            ["Tequila Shot", "龙舌兰子弹杯", "Tequila shot. 龙舌兰子弹杯", "¥35 / ¥380(12)", "", "tequila.jpeg", "center 60%"],
+                            ["Fireball", "火球", "Fireball whisky. 火球威士忌", "¥40 / ¥400(12)", "", "fireball.jpeg", "center 60%"],
+                            ["Woo Woo", "WOO WOO", "Absolut Vodka, Peach liquor, Cranberry juice. 绝对伏特加、蜜桃利口酒、蔓越莓汁", "¥40 / ¥400(12)", "", "woo.jpeg", "center 60%"],
+                            ["Tropicana", "热带风情", "Havana Club 3Yo Rum, Pineapple juice, Passion syrup. 哈瓦那3年朗姆酒、菠萝汁、百香果糖浆", "¥40 / ¥400(12)", "", "tropicana.jpeg", "center 60%"],
+                            ["Madeleine", "玛德莲", "Disaronno, Triple sec, Pineapple juice. 帝萨诺、白橙皮酒、菠萝汁", "¥40 / ¥400(12)", "", "madeleine.jpeg", "center 60%"],
+                            ["Kiss Cool", "酷吻", "Get 27, Absolut Vodka. 薄荷利口酒、绝对伏特加", "¥40 / ¥400(12)", "", "kiss.jpeg", "center 60%"],
+                            ["Little Godfather", "小教父", "Disaronno, Jack Daniels. 帝萨诺、杰克丹尼", "¥45 / ¥480(12)", "", "god-shot.jpeg", "center 60%"],
+                            ["Blow Job", "吹喇叭", "Baileys, Kahlua, Chantilly. 百利甜、甘露咖啡利口酒、鲜奶油", "¥45 / ¥480(12)", "🥛", "blow.jpeg", "center 60%"],
+                            ["B52", "B52轰炸机", "Kahlua, Baileys, Triple sec. 甘露咖啡利口酒、百利甜、白橙皮酒", "¥45 / ¥480(12)", "🥛", "b52.jpeg", "center 60%"],
+                            ["Jager Bomb", "野格炸弹", "Jagermeister, Redbull. 野格、红牛", "¥60 / ¥650(12)", "", "jager-bomb.jpeg", "center 60%"],
+                            ["Alien Brain Hemorrhage", "外星人大脑溢血", "Peach liquor, Blue curacao, Baileys. 蜜桃利口酒、蓝橙利口酒、百利甜", "¥60 / ¥650(12)", "🥛", "alien.jpeg", "center 60%"],
+                            ["Very Bad Trip", "狂暴之路", "Absolut Vodka, Olmeca Tequila, Jager Bomb. 绝对伏特加、奥美加龙舌兰、野格炸弹", "¥90 / ¥980(12)", "", "very-bad.jpeg", "center 60%"]
+                        ]
+                    }
+                ],
+                "wines": [
+                    {
+                        "id": "sub-wines",
+                        "subcategory": "Wines & Prosecco",
+                        "items": [
+                            ["House White Wine", "招牌白葡萄酒", "House white wine. 招牌白葡萄酒", "¥60 / ¥320 (Btl)", "", "white-wine.jpeg"],
+                            ["House Prosecco Wine", "招牌起泡酒", "House prosecco. 招牌起泡酒", "¥70 / ¥390 (Btl)", "", "champagne.jpeg"],
+                            ["House Red Wine", "招牌红葡萄酒", "House red wine. 招牌红葡萄酒", "¥60 / ¥320 (Btl)", "", "red-wine.jpeg"]
+                        ]
+                    }
+                ],
+                "beers": [
+                    {
+                        "id": "sub-towers",
+                        "subcategory": "Towers (3L)",
+                        "items": [
+                            ["Carlsberg Tower", "嘉士伯（生啤）", "3L tower. 3升塔", "¥248", "", "carlsberg-tower.jpeg"],
+                            ["Ducato IPA Tower", "杜卡托印度淡色艾尔啤酒", "3L tower. 3升塔", "¥298", "", "ducato-tower.jpeg"]
+                        ]
+                    },
+                    {
+                        "id": "sub-draft",
+                        "subcategory": "Draft Beers (50 Cl)",
+                        "items": [
+                            ["Carlsberg", "嘉士伯（生啤）", "Pint. 品脱", "¥55", "", "carlsberg.jpeg", "center 35%"],
+                            ["Ducato", "杜卡托", "Pint. 品脱", "¥60", "", "ducato.jpeg"]
+                        ]
+                    },
+                    {
+                        "id": "sub-belgian",
+                        "subcategory": "Imported Belgian Beers",
+                        "items": [
+                            ["Blanche de Bruges", "布鲁日白啤", "Refreshing taste with aromas of coriander seed. 清爽口感，带有芫荽籽香气。", "40¥ / 33cl", "", "blanche-bruges.jpeg"],
+                            ["Rosé de Bruges", "布鲁日玫瑰啤酒", "Refreshing and fruity beer. 清爽果味啤酒。", "45¥ / 33cl", "", "rose-bruges.jpeg", "center 40%"],
+                            ["Vedett Extra Elderflower", "维德特接骨木花啤酒", "Elderflower, lychee and strawberry. 接骨木花、荔枝和草莓。", "45¥ / 33cl", "", "vedett.jpeg"],
+                            ["Hoegaarden White", "福佳白啤酒", "Classic Belgian wheat beer. 经典比利时小麦啤酒。", "¥50", "", "hoegaarden.png"],
+                            ["Duvel Tripel Hop Citra", "督威三花柑橘啤酒", "Intense citrus aromas with pink grapefruit & lime. 浓郁的柑橘香气，带有粉红西柚和青柠味。", "60¥ / 33cl", "", "duvel.jpeg"]
+                        ]
+                    },
+                    {
+                        "id": "sub-latino",
+                        "subcategory": "Latino Beers",
+                        "items": [
+                            ["Corona", "科罗娜", "Bottle. 瓶装", "¥40", "", "corona.jpeg"],
+                            ["Chelada", "切拉达", "Corona with lime and salt. 科罗娜配青柠和盐", "¥45", "", "chelada.jpeg"],
+                            ["Michelada", "米其拉达", "Corona with lime juice, chili, salt. 科罗娜配青柠汁、辣椒、盐", "¥80", "", "michelada.jpeg", "center 60%", "scale(1.15)"],
+                            ["Coronarita", "科罗娜两塔", "Corona cocktail. 科罗娜鸡尾酒", "¥90", "", "coronarita.jpeg", "center", "scale(0.85)"]
+                        ]
+                    }
+                ],
+                "softs": [
+                    {
+                        "id": "sub-othersoft",
+                        "subcategory": "Soft Drinks & Juices",
+                        "items": [
+                            ["Coca Cola", "可口可乐", "Coca Cola. 可口可乐", "¥30", "", "cola.jpeg"],
+                            ["Coca Cola Zero", "可口可乐零度", "Coca Cola Zero. 可口可乐零度", "¥30", "", "coke-zero.jpeg"],
+                            ["Sprite", "雪碧", "Sprite. 雪碧", "¥30", "", "sprite.jpeg"],
+                            ["Ginger Ale", "姜汁汽水", "Ginger Ale. 姜汁汽水", "¥30", "", "ginger-ale.jpeg"],
+                            ["Soda Water", "苏打水", "Soda Water. 苏打水", "¥30", "", "soda-water.jpeg"],
+                            ["Tonic Water", "汤力水", "Tonic Water. 汤力水", "¥30", "", "tonic.jpeg"],
+                            ["Water", "矿泉水", "Water. 矿泉水", "¥10", "", "water.jpeg"]
+                        ]
+                    },
+                    {
+                        "id": "sub-energy",
+                        "subcategory": "Energy & Specials",
+                        "items": [
+                            ["Red Bull", "红牛", "Red Bull energy drink. 红牛能量饮料", "¥40", "", "redbull.jpeg"],
+                            ["Ginger Beer", "姜味啤酒", "Ginger beer. 姜味啤酒", "¥40", "", "ginger-beer.jpeg"]
+                        ]
+                    },
+                    {
+                        "id": "sub-icetea",
+                        "subcategory": "Lupita Iced Tea Drinks",
+                        "items": [
+                            ["Jamaica Water", "墨西哥花茶", "Hibiscus iced tea. 芙蓉冰茶", "¥40", "", "jamaican.jpeg"],
+                            ["Ice Lemonade Tea", "冻柠茶", "Iced lemon tea. 冻柠茶", "¥30", "", "ice-tea.jpeg"]
+                        ]
+                    }
+                ],
+                "shisha": [
+                    {
+                        "subcategory": "Lavii Flavors — 尊享系列",
+                        "items": [
+                            ["Victoria Orchard", "维多利亚果园", "Litchi, floral scent, Earl Grey Tea. 荔枝、花香、伯爵茶。", "¥288"],
+                            ["Utopia", "乌托邦", "Watermelon, Lychee, Mango. 西瓜、荔枝、芒果。", "¥288"],
+                            ["Samba Style", "桑巴风情", "Jasmine, Mango, Pitaya. 茉莉花、芒果、火龙果。", "¥288"],
+                            ["Old Passion Man", "百香巴西佬", "Passion fruit, Pineapple, Brazilian tea. 百香果、菠萝、巴西茶。", "¥288"]
+                        ]
+                    },
+                    {
+                        "subcategory": "Revo Originals — 经典系列 (+25 extra mix)",
+                        "items": [
+                            ["Love 66", "LOVE 66", "A sweet, refreshing fusion of watermelon and cool mint. 清甜西瓜与沁凉薄荷的完美融合。", "¥218"],
+                            ["Lady Killer", "少女杀手", "Discovering what kills ladies. 探索俘获芳心的秘密。", "¥218"],
+                            ["Double Apple", "双苹果", "A timeless mix of red and green apples with a hint of anise. 红青苹果经典碰撞，伴着淡淡的茴香味。", "¥218"],
+                            ["Peach", "水蜜桃", "Juicy, fragrant, and bursting with summer freshness. 爆汁鲜果，夏日清新气息。", "¥218"],
+                            ["Mint", "薄荷", "Refreshing boost to any session. 提神醒脑最佳。", "¥218"],
+                            ["Ice Watermelon", "冰西瓜", "Juicy, refreshing, and sweet with cooling finish. 鲜嫩多汁，甘甜可口。", "¥218"]
+                        ]
+                    }
+                ]
+            }
+        };
+
+        function toggleDropdown(brand) {
+            const boxLupita = document.getElementById('dropdown-lupita');
+            const boxRevo = document.getElementById('dropdown-revo');
+            const pillLupita = document.getElementById('pill-lupita');
+            const pillRevo = document.getElementById('pill-revo');
+
+            if(brand === 'lupita') {
+                const isOpen = boxLupita.classList.contains('active');
+                boxLupita.classList.toggle('active', !isOpen);
+                boxRevo.classList.remove('active');
+                pillLupita.classList.toggle('open', !isOpen);
+                pillRevo.classList.remove('open');
+            } else {
+                const isOpen = boxRevo.classList.contains('active');
+                boxRevo.classList.toggle('active', !isOpen);
+                boxLupita.classList.remove('active');
+                pillRevo.classList.toggle('open', !isOpen);
+                pillLupita.classList.remove('open');
+            }
+        }
+
+        function selectCategory(brand, catKey, title, color) {
+            currentCategoryColor = color;
+            document.getElementById('dropdown-lupita').classList.remove('active');
+            document.getElementById('dropdown-revo').classList.remove('active');
+            document.getElementById('pill-lupita').classList.remove('open');
+            document.getElementById('pill-revo').classList.remove('open');
+
+            const pillLupita = document.getElementById('pill-lupita');
+            const pillRevo = document.getElementById('pill-revo');
+
+            if(brand === 'lupita') {
+                pillLupita.classList.add('active');
+                pillRevo.classList.remove('active');
+                buildSubNavLupita(catKey);
+                renderGrid(catKey, false);
+            } else {
+                pillRevo.classList.add('active');
+                pillLupita.classList.remove('active');
+                document.getElementById('subnav-container').innerHTML = '';
+                if(catKey === 'shisha') {
+                    renderShisha(menuData.revo.shisha);
+                } else {
+                    renderGrid(catKey, true);
+                }
+            }
+        }
+
+        function buildSubNavLupita(catKey) {
+            const subNav = document.getElementById('subnav-container');
+            subNav.classList.add('active-subnav');
+            subNav.innerHTML = '';
+
+            if(catKey === 'finger') {
+                subNav.innerHTML = `
+                    <button class="sub-tab active" onclick="scrollToSub('lupita-sub-bar')">Bar snacks & Appetizers 酒吧小吃</button>
+                    <button class="sub-tab" onclick="scrollToSub('lupita-sub-ceviches')">Ceviches 酸橘汁腌鱼</button>
+                `;
+            } else if(catKey === 'platos') {
+                subNav.innerHTML = `
+                    <button class="sub-tab active" onclick="scrollToSub('sub-quesa')">Quesadillas 煎饼</button>
+                    <button class="sub-tab" onclick="scrollToSub('sub-burritos')">Burritos 卷饼</button>
+                    <button class="sub-tab" onclick="scrollToSub('sub-burgers')">Burgers 汉堡</button>
+                    <button class="sub-tab" onclick="scrollToSub('sub-grilled')">Grilled 烤肉</button>
+                    <button class="sub-tab" onclick="scrollToSub('sub-bowls')">Bowls 沙拉碗</button>
+                    <button class="sub-tab" onclick="scrollToSub('sub-specialities')">Specialities 特色菜</button>
+                `;
+            } else if(catKey === 'tacos') {
+                subNav.innerHTML = `
+                    <button class="sub-tab active" onclick="scrollToSub('sub-tacos3')">Tacos (3 pcs) 塔可</button>
+                    <button class="sub-tab" onclick="scrollToSub('sub-board')">Tacos Board 塔可拼盘</button>
+                `;
+            } else if(catKey === 'desserts') {
+                subNav.innerHTML = `<button class="sub-tab active" onclick="scrollToSub('sub-desserts')">Desserts 甜点</button>`;
+            } else if(catKey === 'happy') {
+                subNav.innerHTML = `<button class="sub-tab active" onclick="scrollToSub('sub-happy')">Happy Hours 欢乐时光</button>`;
+            }
+        }
+
+        function renderGrid(catKey, isRevo) {
+            const container = document.getElementById('mainMenuContainer');
+            let html = '';
+            
+            let dataGroups = isRevo ? menuData.revo[catKey] : menuData.lupita[catKey];
+            
+            dataGroups.forEach((group, gIndex) => {
+                let badgeColor = isRevo ? 'e11d48' : 'f5a623';
+                
+                html += `
+                    <div id="${group.id}" class="subcategory-title-wrapper">
+                        <div class="subcategory-title">${group.subcategory}</div>
+                    </div>`;
+                
+                group.items.forEach((p, iIndex) => {
+                    let safeNameEn = p[0] || '';
+                    let safeNameCn = p[1] || '';
+                    
+                    let nameForAlt = safeNameEn.replace(/"/g, '&quot;');
+                    
+                    let cnDisplay = safeNameCn ? `<div class="product-name-cn">${safeNameCn}</div>` : '';
+                    let allergens = p[4] || '';
+                    let safePrice = p[3] || '';
+                    
+                    let imgPath = p[5];
+                    let imgSrc = (imgPath && imgPath !== 'undefined' && imgPath !== 'NaN') ? imgPath : `https://via.placeholder.com/400x250/161310/${badgeColor}?text=${encodeURIComponent(safeNameEn.substring(0, 12))}`;
+
+                    let imgPos = p[6] || 'center';
+                    let imgTrans = p[7] || 'scale(1)';
+
+                    html += `
+                        <div class="product-card" style="--btn-color: ${currentCategoryColor};" onclick="openModal('${catKey}', ${gIndex}, ${iIndex}, ${isRevo})">
+                            <div class="add-btn-corner">+</div>
+                            <img class="product-img" src="${imgSrc}" alt="${nameForAlt}" style="object-fit: cover; object-position: ${imgPos}; transform: ${imgTrans};">
+                            <div class="product-overlay">
+                                <div class="product-name-en">
+                                    <span>${safeNameEn}</span>
+                                    <span class="allergens">${allergens}</span>
+                                </div>
+                                ${cnDisplay}
+                                <div class="product-bottom">
+                                    <div class="product-price">${safePrice}</div>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+            });
+            container.innerHTML = html;
+        }
+
+        function renderShisha(shishaData) {
+            document.getElementById('subnav-container').classList.remove('active-subnav');
+            const container = document.getElementById('mainMenuContainer');
+            
+            let html = `
+            <div class="shisha-container">
+                <div class="shisha-image-col">
+                    <img src="shisha.jpeg" alt="Shisha Menu">
+                </div>
+                <div class="shisha-list-col">`;
+            
+            shishaData.forEach(series => {
+                let seriesNameParts = series.subcategory.split('—');
+                let enTitle = seriesNameParts[0] ? seriesNameParts[0].trim() : series.subcategory;
+                let cnTitle = seriesNameParts[1] ? seriesNameParts[1].trim() : '';
+
+                html += `<div class="shisha-series-title">${enTitle} <span>${cnTitle}</span></div>`;
+                series.items.forEach(item => {
+                    let safeNameEn = item[0] || '';
+                    let safeDesc = item[2] || '';
+                    let safePrice = item[3] || '';
+
+                    html += `
+                        <div class="shisha-item">
+                            <div class="shisha-names">
+                                <h4>${safeNameEn} <span>${item[1] || ''}</span></h4>
+                                <div class="shisha-desc">${safeDesc}</div>
+                            </div>
+                            <div class="shisha-price">${safePrice}</div>
+                        </div>`;
+                });
+            });
+            
+            html += `
+                </div>
+            </div>`;
+            container.innerHTML = html;
+        }
+
+        function scrollToSub(subId) {
+            const el = document.getElementById(subId);
+            if(el) {
+                const headerOffset = 160;
+                const elementPosition = el.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+            }
+            document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+            if(event && event.target) event.target.classList.add('active');
+        }
+
+        const modal = document.getElementById('productModal');
+        function openModal(catKey, gIndex, iIndex, isRevo) {
+            let dataGroups = isRevo ? menuData.revo[catKey] : menuData.lupita[catKey];
+            let p = dataGroups[gIndex].items[iIndex];
+            
+            let nameEn = p[0] || '';
+            let nameCn = p[1] || '';
+            let desc = p[2] || '';
+            let price = p[3] || '';
+            let allergens = p[4] || '';
+            let imgPath = p[5];
+            let imgPos = p[6] || 'center';
+            let imgTrans = p[7] || 'scale(1)';
+
+            document.getElementById('modalNameEn').innerHTML = nameEn;
+            document.getElementById('modalAllergens').innerHTML = allergens;
+            document.getElementById('modalDesc').innerHTML = desc;
+            document.getElementById('modalPrice').innerHTML = price;
+            
+            let cnEl = document.getElementById('modalNameCn');
+            if (nameCn && nameCn.trim() !== '') {
+                cnEl.innerHTML = nameCn;
+                cnEl.style.display = 'block';
+            } else {
+                cnEl.style.display = 'none';
+            }
+            
+            let badgeColor = isRevo ? 'e11d48' : 'f5a623';
+            let imgSrc = (imgPath && imgPath !== 'undefined' && imgPath !== 'NaN') ? imgPath : `https://via.placeholder.com/600x450/161310/${badgeColor}?text=${encodeURIComponent(nameEn.substring(0, 12))}`;
+            
+            let modalImgEl = document.getElementById('modalImg');
+            modalImgEl.src = imgSrc;
+            
+            if (isRevo) {
+                modalImgEl.style.aspectRatio = '4/5'; 
+                modalImgEl.style.objectFit = 'cover';
+            } else {
+                modalImgEl.style.aspectRatio = '4/3';
+                modalImgEl.style.objectFit = 'cover';
+            }
+            
+            modalImgEl.style.objectPosition = imgPos;
+            modalImgEl.style.transform = imgTrans;
+            
+            modal.classList.add('active');
+        }
+
+        function closeModal() { modal.classList.remove('active'); }
+        window.onclick = function(event) { if (event.target == modal) closeModal(); }
+
+        selectCategory('lupita', 'finger', 'Finger Food', '#f5a623');
+    </script>
+</body>
+</html>
